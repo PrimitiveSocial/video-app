@@ -22866,7 +22866,6 @@ __webpack_require__.r(__webpack_exports__);
 
     var isSupported = TwilioVideo.isSupported,
         connect = TwilioVideo.connect,
-        createLocalVideoTrack = TwilioVideo.createLocalVideoTrack,
         createLocalTracks = TwilioVideo.createLocalTracks;
     var accessToken = (0,vue__WEBPACK_IMPORTED_MODULE_0__.inject)('twilioAccessToken');
     var events = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
@@ -22883,13 +22882,24 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
 
+    var leave = function leave(room) {
+      room.disconnect();
+    };
+
+    var handleRemoteParticipantDisabledCamera = function handleRemoteParticipantDisabledCamera(track) {
+      var attachedElements = track.detach();
+      attachedElements.forEach(function (element) {
+        return element.remove();
+      });
+    };
+
     var joinRoom = function joinRoom(roomName) {
       createLocalTracks({
         audio: true,
-        video: {
-          width: 640
-        }
+        video: true // video: { height: 360, frameRate: 24, width: 640 },
+
       }).then(function (localTracks) {
+        // load audio and video
         var videoChatWindow = document.getElementById('video-chat-window');
         localTracks.forEach(function (track) {
           videoChatWindow.appendChild(track.attach());
@@ -22899,13 +22909,20 @@ __webpack_require__.r(__webpack_exports__);
           tracks: localTracks,
           preferredVideoCodecs: ['H264']
         }).then(function (room) {
+          console.log(room); // ui events
+
           document.getElementById('btn-camera-off').onclick = function () {
             return hideCamera(room);
           };
 
           document.getElementById('btn-camera-on').onclick = function () {
             return showCamera(room);
-          }; // Log your Client's LocalParticipant in the Room
+          };
+
+          document.getElementById('btn-leave').onclick = function () {
+            return leave(room);
+          }; // room events
+          // Log your Client's LocalParticipant in the Room
 
 
           events.value.push("Connected to the Room as LocalParticipant \"".concat(room.localParticipant.identity, "\"")); // Log any Participants already connected to the Room
@@ -22941,6 +22958,15 @@ __webpack_require__.r(__webpack_exports__);
               document.getElementById('remote-media-participants').appendChild(track.attach());
             });
           });
+          room.on('disconnected', function (room) {
+            // Detach the local media elements
+            room.localParticipant.tracks.forEach(function (publication) {
+              var attachedElements = publication.track.detach();
+              attachedElements.forEach(function (element) {
+                return element.remove();
+              });
+            });
+          });
         })["catch"](function (err) {
           //https://www.twilio.com/docs/api/errors/20151
           console.log(err.message);
@@ -22956,12 +22982,13 @@ __webpack_require__.r(__webpack_exports__);
       TwilioVideo: TwilioVideo,
       isSupported: isSupported,
       connect: connect,
-      createLocalVideoTrack: createLocalVideoTrack,
       createLocalTracks: createLocalTracks,
       accessToken: accessToken,
       events: events,
       hideCamera: hideCamera,
       showCamera: showCamera,
+      leave: leave,
+      handleRemoteParticipantDisabledCamera: handleRemoteParticipantDisabledCamera,
       joinRoom: joinRoom,
       inject: vue__WEBPACK_IMPORTED_MODULE_0__.inject,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_0__.onMounted,
@@ -23060,13 +23087,15 @@ var _hoisted_1 = {
   "class": "h-full bg-gradient-to-b from-slate-800 to-slate-600"
 };
 var _hoisted_2 = {
-  "class": "flex justify-between items-center p-4"
+  "class": "flex justify-between p-8 space-x-8"
 };
 
 var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   id: "video-chat-window",
-  "class": "w-1/2 w-1/3 border"
-}), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "You")], -1
+  "class": ""
+}), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  "class": "text-white"
+}, "You")], -1
 /* HOISTED */
 );
 
@@ -23080,27 +23109,33 @@ var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 var _hoisted_5 = {
   id: "meeting-events"
 };
+var _hoisted_6 = {
+  "class": "space-y-4"
+};
+var _hoisted_7 = {
+  "class": "text-white"
+};
 
-var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
   id: "btn-camera-off"
-}, "hide camera", -1
-/* HOISTED */
-);
-
-var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+}, "hide camera"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
   id: "btn-camera-on"
-}, "enable camera", -1
+}, "enable camera"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  id: "btn-leave"
+}, "leave call")], -1
 /* HOISTED */
 );
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_6, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
     /* TEXT */
     );
   }), 256
   /* UNKEYED_FRAGMENT */
-  ))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), _hoisted_6, _hoisted_7])]);
+  ))])])]), _hoisted_8]);
 }
 
 /***/ }),

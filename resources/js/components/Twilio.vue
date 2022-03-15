@@ -1,10 +1,10 @@
 <template>
     <div class="h-full bg-gradient-to-b from-slate-800 to-slate-600">
-        <div class="flex justify-between items-center p-4">
+        <div class="flex justify-between p-8 space-x-8">
             <!-- local participant media -->
             <div>
-                <div id="video-chat-window" class="w-1/2 w-1/3 border"></div>
-                <span>You</span>
+                <div id="video-chat-window" class=""></div>
+                <span class="text-white">You</span>
             </div>
 
             <!-- local participant media -->
@@ -14,14 +14,17 @@
 
             <!-- events log -->
             <div id="meeting-events">
-                <ul>
-                    <li v-for="event in events"> {{ event }}</li>
+                <ul class="space-y-4">
+                    <li v-for="event in events" class="text-white"> {{ event }}</li>
                 </ul>
             </div>
+        </div>
 
+        <div class="fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4">
             <!-- ui action -->
             <button id="btn-camera-off">hide camera</button>
             <button id="btn-camera-on">enable camera</button>
+            <button id="btn-leave">leave call</button>
         </div>
     </div>
 </template>
@@ -42,7 +45,7 @@
 import { inject, onMounted, ref } from "vue"
 
 const TwilioVideo = require('twilio-video')
-const { isSupported, connect, createLocalVideoTrack, createLocalTracks } = TwilioVideo
+const { isSupported, connect, createLocalTracks } = TwilioVideo
 
 const accessToken = inject('twilioAccessToken')
 const events = ref([])
@@ -59,23 +62,36 @@ const showCamera = (room) => {
     });
 }
 
+const leave = (room) => {
+    room.disconnect();
+}
+
+const handleRemoteParticipantDisabledCamera = (track) => {
+    const attachedElements = track.detach();
+    attachedElements.forEach(element => element.remove());
+}
+
 const joinRoom = (roomName) => {
     createLocalTracks({
         audio: true,
-        video: { width: 640 },
+        video: true,
+        // video: { height: 360, frameRate: 24, width: 640 },
     }).then(localTracks => {
-
+        // load audio and video
         const videoChatWindow = document.getElementById('video-chat-window')
-
         localTracks.forEach(function(track) {
             videoChatWindow.appendChild(track.attach());
         })
 
-        return connect(accessToken.value, { name: roomName, tracks: localTracks, preferredVideoCodecs: ['H264'] })
+        return connect(accessToken.value, { name: roomName, tracks: localTracks,  preferredVideoCodecs: ['H264'] })
             .then(room => {
+                console.log(room)
+                // ui events
                 document.getElementById('btn-camera-off').onclick = () => hideCamera(room)
                 document.getElementById('btn-camera-on').onclick = () => showCamera(room)
+                document.getElementById('btn-leave').onclick = () => leave(room)
 
+                // room events
                 // Log your Client's LocalParticipant in the Room
                 events.value.push(`Connected to the Room as LocalParticipant "${room.localParticipant.identity}"`);
 
@@ -115,6 +131,14 @@ const joinRoom = (roomName) => {
 
                     participant.on('trackSubscribed', track => {
                         document.getElementById('remote-media-participants').appendChild(track.attach());
+                    });
+                });
+
+                room.on('disconnected', room => {
+                    // Detach the local media elements
+                    room.localParticipant.tracks.forEach(publication => {
+                        const attachedElements = publication.track.detach();
+                        attachedElements.forEach(element => element.remove());
                     });
                 });
 

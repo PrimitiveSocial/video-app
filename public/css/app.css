@@ -424,9 +424,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-backdrop-saturate:  ;
   --tw-backdrop-sepia:  ;
 }
+.fixed {
+  position: fixed;
+}
+.bottom-0 {
+  bottom: 0px;
+}
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+.mt-8 {
+  margin-top: 2rem;
 }
 .flex {
   display: flex;
@@ -458,6 +467,21 @@ Ensure the default browser behavior of the `hidden` attribute.
 .justify-between {
   justify-content: space-between;
 }
+.space-x-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(2rem * var(--tw-space-x-reverse));
+  margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
+}
+.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
 .rounded-md {
   border-radius: 0.375rem;
 }
@@ -475,9 +499,9 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-bg-opacity: 1;
   background-color: rgb(243 232 255 / var(--tw-bg-opacity));
 }
-.bg-gray-100 {
+.bg-white {
   --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
@@ -492,6 +516,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 .p-4 {
   padding: 1rem;
 }
+.p-2 {
+  padding: 0.5rem;
+}
+.p-8 {
+  padding: 2rem;
+}
 .px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
@@ -499,6 +529,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+.pt-8 {
+  padding-top: 2rem;
 }
 .text-base {
   font-size: 1rem;
@@ -514,6 +547,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-purple-700 {
   --tw-text-opacity: 1;
   color: rgb(126 34 206 / var(--tw-text-opacity));
+}
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 .antialiased {
   -webkit-font-smoothing: antialiased;
