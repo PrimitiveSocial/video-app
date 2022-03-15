@@ -22760,12 +22760,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+/* harmony import */ var _HomepageActions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HomepageActions */ "./resources/js/components/HomepageActions.vue");
+/* harmony import */ var _Twilio__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Twilio */ "./resources/js/components/Twilio.vue");
+
+
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   setup: function setup(__props, _ref) {
     var expose = _ref.expose;
     expose();
     var twilioAccessToken = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
+    var showTwilioVideoChat = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
 
     var getTwilioAccessToken = function getTwilioAccessToken() {
       axios.post('access-token/twilio').then(function (response) {
@@ -22773,14 +22778,54 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
 
+    (0,vue__WEBPACK_IMPORTED_MODULE_0__.provide)('twilioAccessToken', twilioAccessToken);
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
       getTwilioAccessToken();
     });
     var __returned__ = {
       twilioAccessToken: twilioAccessToken,
+      showTwilioVideoChat: showTwilioVideoChat,
       getTwilioAccessToken: getTwilioAccessToken,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref,
-      onMounted: vue__WEBPACK_IMPORTED_MODULE_0__.onMounted
+      onMounted: vue__WEBPACK_IMPORTED_MODULE_0__.onMounted,
+      provide: vue__WEBPACK_IMPORTED_MODULE_0__.provide,
+      HomepageActions: _HomepageActions__WEBPACK_IMPORTED_MODULE_1__["default"],
+      Twilio: _Twilio__WEBPACK_IMPORTED_MODULE_2__["default"]
+    };
+    Object.defineProperty(__returned__, '__isScriptSetup', {
+      enumerable: false,
+      value: true
+    });
+    return __returned__;
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js":
+/*!********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js ***!
+  \********************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  emits: ['twilio-connected'],
+  setup: function setup(__props, _ref) {
+    var expose = _ref.expose,
+        emit = _ref.emit;
+    expose();
+    var twilioAccessToken = (0,vue__WEBPACK_IMPORTED_MODULE_0__.inject)('twilioAccessToken');
+    var __returned__ = {
+      twilioAccessToken: twilioAccessToken,
+      emit: emit,
+      inject: vue__WEBPACK_IMPORTED_MODULE_0__.inject
     };
     Object.defineProperty(__returned__, '__isScriptSetup', {
       enumerable: false,
@@ -22808,86 +22853,117 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   setup: function setup(__props, _ref) {
     var expose = _ref.expose;
-    expose(); // https://www.twilio.com/docs/video
-    // https://www.twilio.com/docs/video/javascript-getting-started
+    expose(); // https://www.twilio.com/docs/video/tutorials/basic-concepts
     // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms
+    // https://www.twilio.com/docs/video/tutorials/developing-high-quality-video-applications
+    // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms-apis
+    // https://www.twilio.com/docs/video/javascript-getting-started
+    // storage to s3
+    // recordings
+    // share screen
 
     var TwilioVideo = __webpack_require__(/*! twilio-video */ "./node_modules/twilio-video/es5/index.js");
 
     var isSupported = TwilioVideo.isSupported,
         connect = TwilioVideo.connect,
-        createLocalVideoTrack = TwilioVideo.createLocalVideoTrack;
-    var accessToken = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
+        createLocalVideoTrack = TwilioVideo.createLocalVideoTrack,
+        createLocalTracks = TwilioVideo.createLocalTracks;
+    var accessToken = (0,vue__WEBPACK_IMPORTED_MODULE_0__.inject)('twilioAccessToken');
+    var events = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
 
-    var getAccessToken = function getAccessToken() {
-      axios.post('access-token/twilio').then(function (response) {
-        accessToken.value = response.data;
-        joinRoom('meeting room');
+    var hideCamera = function hideCamera(room) {
+      room.localParticipant.tracks.forEach(function (publication) {
+        publication.track.disable();
+      });
+    };
+
+    var showCamera = function showCamera(room) {
+      room.localParticipant.videoTracks.forEach(function (publication) {
+        publication.track.enable();
       });
     };
 
     var joinRoom = function joinRoom(roomName) {
-      connect(accessToken.value, {
-        name: roomName
-      }).then(function (room) {
-        // capture local media from your device's microphone, camera or screen-share
+      createLocalTracks({
+        audio: true,
+        video: {
+          width: 640
+        }
+      }).then(function (localTracks) {
         var videoChatWindow = document.getElementById('video-chat-window');
-        createLocalVideoTrack().then(function (track) {
+        localTracks.forEach(function (track) {
           videoChatWindow.appendChild(track.attach());
-        }); // Log your Client's LocalParticipant in the Room
-
-        var localParticipant = room.localParticipant;
-        console.log("Connected to the Room as LocalParticipant \"".concat(localParticipant.identity, "\"")); // Log any Participants already connected to the Room
-
-        room.participants.forEach(function (participant) {
-          console.log("Participant \"".concat(participant.identity, "\" is connected to the Room"));
-        }); // Log new Participants as they connect to the Room
-
-        room.on('participantConnected', function (participant) {
-          console.log("Participant \"".concat(participant.identity, "\" has connected to the Room"));
-          participant.tracks.forEach(function (publication) {
-            if (publication.isSubscribed) {
-              var track = publication.track;
-              document.getElementById('remote-media-participants').appendChild(track.attach());
-            }
-          });
-          participant.on('trackSubscribed', function (track) {
-            document.getElementById('remote-media-participants').appendChild(track.attach());
-          });
-        }); // Log Participants as they disconnect from the Room
-
-        room.on('participantDisconnected', function (participant) {
-          console.log("Participant \"".concat(participant.identity, "\" has disconnected from the Room"));
-        }); // For RemoteParticipants that are already in the Room, we can attach their RemoteTracks
-
-        room.participants.forEach(function (participant) {
-          participant.tracks.forEach(function (publication) {
-            if (publication.track) {
-              document.getElementById('remote-media-participants').appendChild(publication.track.attach());
-            }
-          });
-          participant.on('trackSubscribed', function (track) {
-            document.getElementById('remote-media-participants').appendChild(track.attach());
-          });
         });
-      })["catch"](function (err) {
-        //https://www.twilio.com/docs/api/errors/20151
-        console.log(err.message);
-        console.log(err.code);
+        return connect(accessToken.value, {
+          name: roomName,
+          tracks: localTracks,
+          preferredVideoCodecs: ['H264']
+        }).then(function (room) {
+          document.getElementById('btn-camera-off').onclick = function () {
+            return hideCamera(room);
+          };
+
+          document.getElementById('btn-camera-on').onclick = function () {
+            return showCamera(room);
+          }; // Log your Client's LocalParticipant in the Room
+
+
+          events.value.push("Connected to the Room as LocalParticipant \"".concat(room.localParticipant.identity, "\"")); // Log any Participants already connected to the Room
+
+          room.participants.forEach(function (participant) {
+            events.value.push("Participant \"".concat(participant.identity, "\" is already connected to the Room"));
+          }); // Log new Participants as they connect to the Room
+
+          room.on('participantConnected', function (participant) {
+            events.value.push("Participant \"".concat(participant.identity, "\" has now connected to the Room"));
+            participant.tracks.forEach(function (publication) {
+              if (publication.isSubscribed) {
+                var track = publication.track;
+                document.getElementById('remote-media-participants').appendChild(track.attach());
+              }
+            });
+            participant.on('trackSubscribed', function (track) {
+              document.getElementById('remote-media-participants').appendChild(track.attach());
+            });
+          }); // Log Participants as they disconnect from the Room
+
+          room.on('participantDisconnected', function (participant) {
+            events.value.push("Participant \"".concat(participant.identity, "\" has disconnected from the Room"));
+          }); // For RemoteParticipants that are already in the Room, we can attach their RemoteTracks
+
+          room.participants.forEach(function (participant) {
+            participant.tracks.forEach(function (publication) {
+              if (publication.track) {
+                document.getElementById('remote-media-participants').appendChild(publication.track.attach());
+              }
+            });
+            participant.on('trackSubscribed', function (track) {
+              document.getElementById('remote-media-participants').appendChild(track.attach());
+            });
+          });
+        })["catch"](function (err) {
+          //https://www.twilio.com/docs/api/errors/20151
+          console.log(err.message);
+          console.log(err.code);
+        });
       });
     };
 
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
-      getAccessToken();
+      joinRoom('personal-meeting');
     });
     var __returned__ = {
       TwilioVideo: TwilioVideo,
       isSupported: isSupported,
       connect: connect,
       createLocalVideoTrack: createLocalVideoTrack,
+      createLocalTracks: createLocalTracks,
       accessToken: accessToken,
-      getAccessToken: getAccessToken,
+      events: events,
+      hideCamera: hideCamera,
+      showCamera: showCamera,
       joinRoom: joinRoom,
+      inject: vue__WEBPACK_IMPORTED_MODULE_0__.inject,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_0__.onMounted,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref
     };
@@ -22915,15 +22991,39 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
 var _hoisted_1 = {
+  "class": "w-full h-screen"
+};
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [!$setup.showTwilioVideoChat ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["HomepageActions"], {
+    key: 0,
+    onTwilioConnected: _cache[0] || (_cache[0] = function ($event) {
+      return $setup.showTwilioVideoChat = true;
+    })
+  })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.showTwilioVideoChat ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Twilio"], {
+    key: 1
+  })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]);
+}
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614":
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614 ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render)
+/* harmony export */ });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+
+var _hoisted_1 = {
   "class": "w-full h-screen flex items-center justify-center"
 };
-var _hoisted_2 = {
-  key: 0,
-  type: "button",
-  "class": "inline-flex items-center mx-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-};
 
-var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
   type: "button",
   "class": "inline-flex items-center mx-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
 }, " Join meeting using Agora ", -1
@@ -22931,7 +23031,14 @@ var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 );
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [$setup.twilioAccessToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", _hoisted_2, " Join meeting using Twilio ")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_3]);
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [$setup.twilioAccessToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 0,
+    type: "button",
+    onClick: _cache[0] || (_cache[0] = function ($event) {
+      return $setup.emit('twilio-connected');
+    }),
+    "class": "inline-flex items-center mx-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+  }, " Join meeting using Twilio ")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_2]);
 }
 
 /***/ }),
@@ -22950,28 +23057,50 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
 var _hoisted_1 = {
-  "class": "bg-gray-100"
+  "class": "h-full bg-gradient-to-b from-slate-800 to-slate-600"
+};
+var _hoisted_2 = {
+  "class": "flex justify-between items-center p-4"
 };
 
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "get access token with video grant permission"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "connect to room with access token and room settings"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "room types: https://www.twilio.com/docs/video/tutorials/understanding-video-rooms"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "Adhoc room are what we will use as we can create it on the fly without any request. read more about adhoc room and room types in general"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "the api provides the features but no the UI (kind of like the composition api)"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", null, "create local video track to capture media devices")], -1
+var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  id: "video-chat-window",
+  "class": "w-1/2 w-1/3 border"
+}), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "You")], -1
 /* HOISTED */
 );
 
-var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  id: "video-chat-window"
-}, null, -1
+var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  id: "remote-media-participants",
+  "class": ""
+})], -1
 /* HOISTED */
 );
 
-var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  id: "remote-media-participants"
-}, null, -1
+var _hoisted_5 = {
+  id: "meeting-events"
+};
+
+var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  id: "btn-camera-off"
+}, "hide camera", -1
 /* HOISTED */
 );
 
-var _hoisted_5 = [_hoisted_2, _hoisted_3, _hoisted_4];
+var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  id: "btn-camera-on"
+}, "enable camera", -1
+/* HOISTED */
+);
+
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, _hoisted_5);
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" local participant media "), _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
+    /* TEXT */
+    );
+  }), 256
+  /* UNKEYED_FRAGMENT */
+  ))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), _hoisted_6, _hoisted_7])]);
 }
 
 /***/ }),
@@ -22985,16 +23114,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-/* harmony import */ var _components_Twilio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/Twilio */ "./resources/js/components/Twilio.vue");
-/* harmony import */ var _components_Homepage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/Homepage */ "./resources/js/components/Homepage.vue");
+/* harmony import */ var _components_Homepage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/Homepage */ "./resources/js/components/Homepage.vue");
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 
 
-
 var app = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)({});
-app.component('twilio', _components_Twilio__WEBPACK_IMPORTED_MODULE_1__["default"]);
-app.component('homepage', _components_Homepage__WEBPACK_IMPORTED_MODULE_2__["default"]);
+app.component('homepage', _components_Homepage__WEBPACK_IMPORTED_MODULE_1__["default"]);
 app.mount('#app');
 
 /***/ }),
@@ -68869,6 +68995,34 @@ if (false) {}
 
 /***/ }),
 
+/***/ "./resources/js/components/HomepageActions.vue":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/HomepageActions.vue ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _HomepageActions_vue_vue_type_template_id_767dc614__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./HomepageActions.vue?vue&type=template&id=767dc614 */ "./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614");
+/* harmony import */ var _HomepageActions_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HomepageActions.vue?vue&type=script&setup=true&lang=js */ "./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js");
+/* harmony import */ var _Users_elieandraos_Desktop_Code_primitive_video_app_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+
+
+
+
+;
+const __exports__ = /*#__PURE__*/(0,_Users_elieandraos_Desktop_Code_primitive_video_app_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_HomepageActions_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_HomepageActions_vue_vue_type_template_id_767dc614__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/HomepageActions.vue"]])
+/* hot reload */
+if (false) {}
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (__exports__);
+
+/***/ }),
+
 /***/ "./resources/js/components/Twilio.vue":
 /*!********************************************!*\
   !*** ./resources/js/components/Twilio.vue ***!
@@ -68913,6 +69067,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js":
+/*!****************************************************************************************!*\
+  !*** ./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js ***!
+  \****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_HomepageActions_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"])
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_HomepageActions_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./HomepageActions.vue?vue&type=script&setup=true&lang=js */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=script&setup=true&lang=js");
+ 
+
+/***/ }),
+
 /***/ "./resources/js/components/Twilio.vue?vue&type=script&setup=true&lang=js":
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/Twilio.vue?vue&type=script&setup=true&lang=js ***!
@@ -68941,6 +69111,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "render": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Homepage_vue_vue_type_template_id_7f033e59__WEBPACK_IMPORTED_MODULE_0__.render)
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Homepage_vue_vue_type_template_id_7f033e59__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Homepage.vue?vue&type=template&id=7f033e59 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Homepage.vue?vue&type=template&id=7f033e59");
+
+
+/***/ }),
+
+/***/ "./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614 ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_HomepageActions_vue_vue_type_template_id_767dc614__WEBPACK_IMPORTED_MODULE_0__.render)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_HomepageActions_vue_vue_type_template_id_767dc614__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./HomepageActions.vue?vue&type=template&id=767dc614 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/HomepageActions.vue?vue&type=template&id=767dc614");
 
 
 /***/ }),

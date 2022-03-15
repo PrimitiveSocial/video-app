@@ -7,7 +7,7 @@
         <title>Laravel</title>
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     </head>
-    <body class="antialiased"> <!-- bg-gradient-to-b from-slate-800 to-slate-600 -->
+    <body class="antialiased">
         <div id="app">
             <homepage></homepage>
         </div>
