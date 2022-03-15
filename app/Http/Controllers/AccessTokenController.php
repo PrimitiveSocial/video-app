@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use Twilio\Jwt\AccessToken;
+use Illuminate\Http\JsonResponse;
 use Twilio\Jwt\Grants\VideoGrant;
 
 class AccessTokenController extends Controller
 {
-    public function index() {
-        $accountSid = env('TWILIO_LIVE_ACCOUNT_SID');
-        $apiKeySid = env('TWILIO_LIVE_ACCOUNT_API_KEY');
-        $apiKeySecret = env('TWILIO_LIVE_ACCOUNT_API_SECRET');
+    public function index() : JsonResponse
+    {
+        $accountSid = env('TWILIO_ACCOUNT_SID');
+        $apiKeySid = env('TWILIO_API_KEY');
+        $apiKeySecret = env('TWILIO_API_SECRET');
 
         $identity = uniqid();
 
-        // Create an Access Token
+        // Create the Access Token
         $token = new AccessToken(
             $accountSid,
             $apiKeySid,
@@ -25,7 +27,7 @@ class AccessTokenController extends Controller
 
         // Grant the access to Video
         $grant = new VideoGrant();
-        $grant->setRoom('meeting room');
+        //$grant->setRoom('meeting room');
         $token->addGrant($grant);
 
         // Serialize the token as a JWT
