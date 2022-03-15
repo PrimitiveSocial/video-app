@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="bg-gray-100">
         <ul>
             <li>get access token with video grant permission</li>
             <li>connect to room with access token and room settings</li>
