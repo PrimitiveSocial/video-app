@@ -15,6 +15,7 @@
 
 
 <script setup>
+// https://www.twilio.com/docs/video
 // https://www.twilio.com/docs/video/javascript-getting-started
 // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms
 
@@ -26,7 +27,7 @@ const { isSupported, connect, createLocalVideoTrack } = TwilioVideo
 const accessToken = ref('')
 
 const getAccessToken = () => {
-    axios.post('access-token').then( response => {
+    axios.post('access-token/twilio').then( response => {
         accessToken.value = response.data
        joinRoom('meeting room')
     })

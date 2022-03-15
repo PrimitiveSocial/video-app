@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('access-token', [AccessTokenController::class, 'index']);
+Route::post('access-token/twilio', [AccessTokenController::class, 'twilio']);
 
 Route::get('/', function () {
     return view('welcome');
