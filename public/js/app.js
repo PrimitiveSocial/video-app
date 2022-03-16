@@ -22816,18 +22816,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 /* harmony import */ var agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! agora-rtc-sdk-ng */ "./node_modules/agora-rtc-sdk-ng/AgoraRTC_N-production.js");
 /* harmony import */ var agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2__);
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -22867,13 +22855,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     var appendVideoTag = function appendVideoTag(_ref2) {
       var id = _ref2.id,
-          parentId = _ref2.parentId,
-          classList = _ref2.classList;
+          parentId = _ref2.parentId;
       var div = document.createElement("div");
       div.id = id;
-      div.classList.value = classList;
+      div.style.width = '480px';
+      div.style.height = '320px';
       document.getElementById(parentId).append(div);
-    };
+    }; // Add the user who has subscribed to the channel to the local interface.
+
 
     var handleUserPublished = /*#__PURE__*/function () {
       var _ref3 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee(user, mediaType) {
@@ -22888,8 +22877,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 if (mediaType === 'video') {
                   appendVideoTag({
                     id: "player-".concat(user.uid),
-                    parentId: 'remote-participants-list',
-                    classList: 'w-64 h-64'
+                    parentId: 'remote-participants-list'
                   });
                   user.videoTrack.play("player-".concat(user.uid));
                 }
@@ -22912,45 +22900,52 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return function handleUserPublished(_x, _x2) {
         return _ref3.apply(this, arguments);
       };
-    }();
+    }(); // Remove the user specified from the channel in the local interface
+
+
+    var handleUserUnpublished = function handleUserUnpublished(user, mediaType) {
+      if (mediaType === 'video') {
+        document.getElementById("player-".concat(user.uid)).remove();
+      }
+
+      events.value.push("user ".concat(user.uid, " has left"));
+    };
 
     var join = /*#__PURE__*/function () {
       var _ref4 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
-        var _yield$Promise$all, _yield$Promise$all2;
-
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                /* remote user event listeners */
-                // Add a user who has subscribed to the channel to the local interface.
-                rtc.client.on("user-published", handleUserPublished); // Remove the user specified from the channel in the local interface
-                //rtc.client.on("user-unpublished", handleUserUnpublished);
+                // Event listeners
+                rtc.client.on("user-published", handleUserPublished);
+                rtc.client.on("user-unpublished", handleUserUnpublished); // Join a channel and create local tracks
 
-                /* Join a channel and create local tracks */
+                _context2.next = 4;
+                return rtc.client.join(options.appId, options.channel, options.token, options.uid);
 
-                _context2.next = 3;
-                return Promise.all([// Join the channel.
-                rtc.client.join(options.appId || null, options.channel, options.token, options.uid), // Create tracks to the local microphone and camera.
-                agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack(), agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack()]);
+              case 4:
+                _context2.next = 6;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
 
-              case 3:
-                _yield$Promise$all = _context2.sent;
-                _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 3);
-                options.uid = _yield$Promise$all2[0];
-                rtc.localTracks.audioTrack = _yield$Promise$all2[1];
-                rtc.localTracks.videoTrack = _yield$Promise$all2[2];
+              case 6:
+                rtc.localTracks.audioTrack = _context2.sent;
+                _context2.next = 9;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
+
+              case 9:
+                rtc.localTracks.videoTrack = _context2.sent;
                 // Play the local video track to the local browser
                 rtc.localTracks.videoTrack.play("local-participant-player"); // Publish the local video and audio tracks to the channel.
 
-                _context2.next = 11;
+                _context2.next = 13;
                 return rtc.client.publish(Object.values(rtc.localTracks));
 
-              case 11:
+              case 13:
                 // push event logs to the ui
                 events.value.push("user ".concat(options.uid, " (you) has joined"));
 
-              case 12:
+              case 14:
               case "end":
                 return _context2.stop();
             }
@@ -22963,19 +22958,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     }();
 
-    var joinCall = /*#__PURE__*/function () {
+    var leave = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _context3.next = 2;
-                return rtc.client.join(options.appId, options.channel, options.token, options.uid);
+                rtc.localTracks.audioTrack.stop();
+                rtc.localTracks.audioTrack.close();
+                rtc.localTracks.videoTrack.stop();
+                rtc.localTracks.videoTrack.close();
+                _context3.next = 6;
+                return rtc.client.leave();
 
-              case 2:
-                events.value.push("user ".concat(options.uid, " (you) has joined"));
-
-              case 3:
+              case 6:
               case "end":
                 return _context3.stop();
             }
@@ -22983,178 +22979,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee3);
       }));
 
-      return function joinCall() {
+      return function leave() {
         return _ref5.apply(this, arguments);
       };
     }();
 
-    var startLocalParticipantVideoAndAudio = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
-        var localParticipantPlayer;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                _context4.next = 2;
-                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
-
-              case 2:
-                rtc.localAudioTrack = _context4.sent;
-                _context4.next = 5;
-                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
-
-              case 5:
-                rtc.localVideoTrack = _context4.sent;
-                _context4.next = 8;
-                return rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
-
-              case 8:
-                // Dynamically create a container in the form of a DIV element for playing the local video track.
-                localParticipantPlayer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the local user.
-
-                localParticipantPlayer.id = options.uid.toString();
-                localParticipantPlayer.classList.value = 'w-64 h-64'; //must set width and height to display video
-
-                document.getElementById('local-participant-player').append(localParticipantPlayer); // Play the local video track.
-                // Pass the DIV container and the SDK dynamically creates a player in the container for playing the local video track.
-
-                rtc.localVideoTrack.play(localParticipantPlayer);
-
-              case 13:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, _callee4);
-      }));
-
-      return function startLocalParticipantVideoAndAudio() {
-        return _ref6.apply(this, arguments);
-      };
-    }();
-
-    var listenToRemoteParticipantsEvents = /*#__PURE__*/function () {
-      var _ref7 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                rtc.client.on("user-published", /*#__PURE__*/function () {
-                  var _ref8 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5(user, mediaType) {
-                    var remoteVideoTrack, remotePlayerContainer, remoteAudioTrack;
-                    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
-                      while (1) {
-                        switch (_context5.prev = _context5.next) {
-                          case 0:
-                            _context5.next = 2;
-                            return rtc.client.subscribe(user, mediaType);
-
-                          case 2:
-                            events.value.push("user ".concat(user.uid, " has joined")); // If the remote user publishes a video track.
-
-                            if (mediaType === "video") {
-                              // Get the RemoteVideoTrack object in the AgoraRTCRemoteUser object.
-                              remoteVideoTrack = user.videoTrack; // Dynamically create a container in the form of a DIV element for playing the remote video track.
-
-                              remotePlayerContainer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the remote user.
-
-                              remotePlayerContainer.id = user.uid.toString();
-                              remotePlayerContainer.classList.value = 'w-64 h-64';
-                              document.getElementById('remote-participant').append(remotePlayerContainer); // Play the remote video track.
-                              // Pass the DIV container and the SDK dynamically creates a player in the container for playing the remote video track.
-
-                              remoteVideoTrack.play(remotePlayerContainer);
-                            } // If the remote user publishes an audio track.
-
-
-                            if (mediaType === "audio") {
-                              // Get the RemoteAudioTrack object in the AgoraRTCRemoteUser object.
-                              remoteAudioTrack = user.audioTrack; // Play the remote audio track. No need to pass any DOM element.
-
-                              remoteAudioTrack.play();
-                            } // Listen for the "user-unpublished" event
-
-
-                            rtc.client.on("user-unpublished", function (user) {
-                              // Get the dynamically created DIV container.
-                              var remotePlayerContainer = document.getElementById(user.uid); // Destroy the container.
-
-                              remotePlayerContainer.remove();
-                            });
-
-                          case 6:
-                          case "end":
-                            return _context5.stop();
-                        }
-                      }
-                    }, _callee5);
-                  }));
-
-                  return function (_x3, _x4) {
-                    return _ref8.apply(this, arguments);
-                  };
-                }());
-
-              case 1:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, _callee6);
-      }));
-
-      return function listenToRemoteParticipantsEvents() {
-        return _ref7.apply(this, arguments);
-      };
-    }();
-
-    var startExistingRemoteParticipantsVideoAndAudio = /*#__PURE__*/function () {
-      var _ref9 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee7() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee7$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                rtc.client.remoteUsers.forEach(function (user) {
-                  var remoteVideoTrack = user.videoTrack; // Specify the ID of the DIV container. You can use the uid of the remote user.
-
-                  var remotePlayerContainer = document.createElement("div");
-                  remotePlayerContainer.id = user.uid.toString();
-                  remotePlayerContainer.classList.value = 'w-64 h-64';
-                  document.getElementById('remote-participant').append(remotePlayerContainer); // Play the remote video track.
-                  // Pass the DIV container and the SDK dynamically creates a player in the container for playing the remote video track.
-
-                  remoteVideoTrack.play(remotePlayerContainer);
-                  var remoteAudioTrack = user.audioTrack;
-                  remoteAudioTrack.play();
-                });
-
-              case 1:
-              case "end":
-                return _context7.stop();
-            }
-          }
-        }, _callee7);
-      }));
-
-      return function startExistingRemoteParticipantsVideoAndAudio() {
-        return _ref9.apply(this, arguments);
-      };
-    }();
-
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee8() {
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee8$(_context8) {
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context8.prev = _context8.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
-              _context8.next = 2;
+              _context4.next = 2;
               return join();
 
             case 2:
             case "end":
-              return _context8.stop();
+              return _context4.stop();
           }
         }
-      }, _callee8);
+      }, _callee4);
     })));
     var __returned__ = {
       rtc: rtc,
@@ -23162,11 +23005,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       events: events,
       appendVideoTag: appendVideoTag,
       handleUserPublished: handleUserPublished,
+      handleUserUnpublished: handleUserUnpublished,
       join: join,
-      joinCall: joinCall,
-      startLocalParticipantVideoAndAudio: startLocalParticipantVideoAndAudio,
-      listenToRemoteParticipantsEvents: listenToRemoteParticipantsEvents,
-      startExistingRemoteParticipantsVideoAndAudio: startExistingRemoteParticipantsVideoAndAudio,
+      leave: leave,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
       ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref,
       AgoraRTC: (agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default())
@@ -23493,6 +23334,23 @@ var _hoisted_6 = {
 var _hoisted_7 = {
   "class": "text-white"
 };
+
+var _hoisted_8 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    id: "btn-camera-off"
+  }, "hide camera", -1
+  /* HOISTED */
+  );
+});
+
+var _hoisted_9 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    id: "btn-camera-on"
+  }, "enable camera", -1
+  /* HOISTED */
+  );
+});
+
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_6, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
@@ -23500,7 +23358,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     );
   }), 256
   /* UNKEYED_FRAGMENT */
-  ))])])])]);
+  ))])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4"
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), _hoisted_8, _hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    id: "btn-leave",
+    onClick: $setup.leave
+  }, "leave call")])]);
 }
 
 /***/ }),
