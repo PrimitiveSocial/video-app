@@ -14,8 +14,8 @@
 
         <div class="fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4">
             <!-- ui action -->
-            <button id="btn-camera-off">hide camera</button>
-            <button id="btn-camera-on">enable camera</button>
+            <button id="btn-camera-off" @click="muteVideo">hide camera</button>
+            <button id="btn-camera-on" @click="unMuteVideo">enable camera</button>
             <button id="btn-leave" @click="leave">leave call</button>
         </div>
 
@@ -29,7 +29,9 @@
 // https://docs.agora.io/en/Agora%20Platform/agora_platform?platform=All%20Platforms
 // https://docs.agora.io/en/Video/start_call_web_ng?platform=Web
 // https://docs.agora.io/en/Video/faq/token_error
+
 // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
+// https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html
 
 import { onMounted, ref } from "vue"
 import AgoraRTC from "agora-rtc-sdk-ng"
@@ -61,6 +63,10 @@ const appendVideoTag = ({id, parentId}) => {
     document.getElementById(parentId).append(div)
 }
 
+const logToUi = (msg) => {
+    events.value.push(msg)
+}
+
 // Add the user who has subscribed to the channel to the local interface.
 const handleUserPublished = async (user, mediaType) => {
     await rtc.client.subscribe(user, mediaType)
@@ -68,29 +74,44 @@ const handleUserPublished = async (user, mediaType) => {
     if (mediaType === 'video') {
         appendVideoTag({ id: `player-${user.uid}`, parentId:'remote-participants-list' })
         user.videoTrack.play(`player-${user.uid}`)
+        logToUi(`user ${user.uid} turned on video` )
     }
 
     if (mediaType === 'audio') {
         user.audioTrack.play();
+        logToUi(`user ${user.uid} turned on audio` )
     }
 
-    // push event logs to the ui
-    events.value.push(`user ${user.uid} has joined` )
 }
 
 // Remove the user specified from the channel in the local interface
 const handleUserUnpublished = (user, mediaType) => {
     if (mediaType === 'video') {
         document.getElementById(`player-${user.uid}`).remove()
+        logToUi(`user ${user.uid} turned off video` )
     }
 
-    events.value.push(`user ${user.uid} has left` )
+    if (mediaType === 'audio') {
+        logToUi(`user ${user.uid} turned off audio` )
+    }
+}
+
+const muteVideo = async () => {
+    if (!rtc.localTracks.videoTrack) return;
+    await rtc.localTracks.videoTrack.setMuted(true);
+}
+
+const unMuteVideo = async () => {
+    if (!rtc.localTracks.videoTrack) return;
+    await rtc.localTracks.videoTrack.setMuted(false);
 }
 
 const join = async () => {
     // Event listeners
     rtc.client.on("user-published", handleUserPublished)
-    rtc.client.on("user-unpublished", handleUserUnpublished);
+    rtc.client.on("user-unpublished", handleUserUnpublished)
+    rtc.client.on("user-joined", (user) => { logToUi(`user ${user.uid} has joined` ) })
+    rtc.client.on("user-left", (user) => { logToUi(`user ${user.uid} has left` ) })
 
     // Join a channel and create local tracks
     await rtc.client.join(options.appId, options.channel, options.token, options.uid)
@@ -104,7 +125,7 @@ const join = async () => {
     await rtc.client.publish(Object.values(rtc.localTracks));
 
     // push event logs to the ui
-    events.value.push(`user ${options.uid} (you) has joined` )
+    logToUi(`user ${options.uid} (you) has joined`)
 }
 
 const leave = async () => {

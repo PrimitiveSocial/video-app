@@ -22833,6 +22833,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // https://docs.agora.io/en/Video/start_call_web_ng?platform=Web
     // https://docs.agora.io/en/Video/faq/token_error
     // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
+    // https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html
 
     var rtc = {
       client: agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createClient({
@@ -22861,6 +22862,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       div.style.width = '480px';
       div.style.height = '320px';
       document.getElementById(parentId).append(div);
+    };
+
+    var logToUi = function logToUi(msg) {
+      events.value.push(msg);
     }; // Add the user who has subscribed to the channel to the local interface.
 
 
@@ -22880,16 +22885,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     parentId: 'remote-participants-list'
                   });
                   user.videoTrack.play("player-".concat(user.uid));
+                  logToUi("user ".concat(user.uid, " turned on video"));
                 }
 
                 if (mediaType === 'audio') {
                   user.audioTrack.play();
-                } // push event logs to the ui
+                  logToUi("user ".concat(user.uid, " turned on audio"));
+                }
 
-
-                events.value.push("user ".concat(user.uid, " has joined"));
-
-              case 5:
+              case 4:
               case "end":
                 return _context.stop();
             }
@@ -22906,46 +22910,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var handleUserUnpublished = function handleUserUnpublished(user, mediaType) {
       if (mediaType === 'video') {
         document.getElementById("player-".concat(user.uid)).remove();
+        logToUi("user ".concat(user.uid, " turned off video"));
       }
 
-      events.value.push("user ".concat(user.uid, " has left"));
+      if (mediaType === 'audio') {
+        logToUi("user ".concat(user.uid, " turned off audio"));
+      }
     };
 
-    var join = /*#__PURE__*/function () {
+    var muteVideo = /*#__PURE__*/function () {
       var _ref4 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                // Event listeners
-                rtc.client.on("user-published", handleUserPublished);
-                rtc.client.on("user-unpublished", handleUserUnpublished); // Join a channel and create local tracks
+                if (rtc.localTracks.videoTrack) {
+                  _context2.next = 2;
+                  break;
+                }
 
+                return _context2.abrupt("return");
+
+              case 2:
                 _context2.next = 4;
-                return rtc.client.join(options.appId, options.channel, options.token, options.uid);
+                return rtc.localTracks.videoTrack.setMuted(true);
 
               case 4:
-                _context2.next = 6;
-                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
-
-              case 6:
-                rtc.localTracks.audioTrack = _context2.sent;
-                _context2.next = 9;
-                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
-
-              case 9:
-                rtc.localTracks.videoTrack = _context2.sent;
-                // Play the local video track to the local browser
-                rtc.localTracks.videoTrack.play("local-participant-player"); // Publish the local video and audio tracks to the channel.
-
-                _context2.next = 13;
-                return rtc.client.publish(Object.values(rtc.localTracks));
-
-              case 13:
-                // push event logs to the ui
-                events.value.push("user ".concat(options.uid, " (you) has joined"));
-
-              case 14:
               case "end":
                 return _context2.stop();
             }
@@ -22953,25 +22943,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee2);
       }));
 
-      return function join() {
+      return function muteVideo() {
         return _ref4.apply(this, arguments);
       };
     }();
 
-    var leave = /*#__PURE__*/function () {
+    var unMuteVideo = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                rtc.localTracks.audioTrack.stop();
-                rtc.localTracks.audioTrack.close();
-                rtc.localTracks.videoTrack.stop();
-                rtc.localTracks.videoTrack.close();
-                _context3.next = 6;
-                return rtc.client.leave();
+                if (rtc.localTracks.videoTrack) {
+                  _context3.next = 2;
+                  break;
+                }
 
-              case 6:
+                return _context3.abrupt("return");
+
+              case 2:
+                _context3.next = 4;
+                return rtc.localTracks.videoTrack.setMuted(false);
+
+              case 4:
               case "end":
                 return _context3.stop();
             }
@@ -22979,33 +22973,115 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee3);
       }));
 
-      return function leave() {
+      return function unMuteVideo() {
         return _ref5.apply(this, arguments);
       };
     }();
 
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+    var join = /*#__PURE__*/function () {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                // Event listeners
+                rtc.client.on("user-published", handleUserPublished);
+                rtc.client.on("user-unpublished", handleUserUnpublished);
+                rtc.client.on("user-joined", function (user) {
+                  logToUi("user ".concat(user.uid, " has joined"));
+                });
+                rtc.client.on("user-left", function (user) {
+                  logToUi("user ".concat(user.uid, " has left"));
+                }); // Join a channel and create local tracks
+
+                _context4.next = 6;
+                return rtc.client.join(options.appId, options.channel, options.token, options.uid);
+
+              case 6:
+                _context4.next = 8;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
+
+              case 8:
+                rtc.localTracks.audioTrack = _context4.sent;
+                _context4.next = 11;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
+
+              case 11:
+                rtc.localTracks.videoTrack = _context4.sent;
+                // Play the local video track to the local browser
+                rtc.localTracks.videoTrack.play("local-participant-player"); // Publish the local video and audio tracks to the channel.
+
+                _context4.next = 15;
+                return rtc.client.publish(Object.values(rtc.localTracks));
+
+              case 15:
+                // push event logs to the ui
+                logToUi("user ".concat(options.uid, " (you) has joined"));
+
+              case 16:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4);
+      }));
+
+      return function join() {
+        return _ref6.apply(this, arguments);
+      };
+    }();
+
+    var leave = /*#__PURE__*/function () {
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                rtc.localTracks.audioTrack.stop();
+                rtc.localTracks.audioTrack.close();
+                rtc.localTracks.videoTrack.stop();
+                rtc.localTracks.videoTrack.close();
+                _context5.next = 6;
+                return rtc.client.leave();
+
+              case 6:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5);
+      }));
+
+      return function leave() {
+        return _ref7.apply(this, arguments);
+      };
+    }();
+
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6() {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context4.next = 2;
+              _context6.next = 2;
               return join();
 
             case 2:
             case "end":
-              return _context4.stop();
+              return _context6.stop();
           }
         }
-      }, _callee4);
+      }, _callee6);
     })));
     var __returned__ = {
       rtc: rtc,
       options: options,
       events: events,
       appendVideoTag: appendVideoTag,
+      logToUi: logToUi,
       handleUserPublished: handleUserPublished,
       handleUserUnpublished: handleUserUnpublished,
+      muteVideo: muteVideo,
+      unMuteVideo: unMuteVideo,
       join: join,
       leave: leave,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
@@ -23137,9 +23213,7 @@ __webpack_require__.r(__webpack_exports__);
     // https://www.twilio.com/docs/video/tutorials/developing-high-quality-video-applications
     // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms-apis
     // https://www.twilio.com/docs/video/javascript-getting-started
-    // storage to s3
-    // recordings
-    // share screen
+    // https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices
 
     var TwilioVideo = __webpack_require__(/*! twilio-video */ "./node_modules/twilio-video/es5/index.js");
 
@@ -23182,7 +23256,8 @@ __webpack_require__.r(__webpack_exports__);
         var videoChatWindow = document.getElementById('video-chat-window');
         localTracks.forEach(function (track) {
           videoChatWindow.appendChild(track.attach());
-        });
+        }); // const room = await connect()
+
         return connect(accessToken.value, {
           name: roomName,
           tracks: localTracks,
@@ -23334,23 +23409,6 @@ var _hoisted_6 = {
 var _hoisted_7 = {
   "class": "text-white"
 };
-
-var _hoisted_8 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    id: "btn-camera-off"
-  }, "hide camera", -1
-  /* HOISTED */
-  );
-});
-
-var _hoisted_9 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    id: "btn-camera-on"
-  }, "enable camera", -1
-  /* HOISTED */
-  );
-});
-
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_6, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
@@ -23360,7 +23418,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* UNKEYED_FRAGMENT */
   ))])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4"
-  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), _hoisted_8, _hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    id: "btn-camera-off",
+    onClick: $setup.muteVideo
+  }, "hide camera"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    id: "btn-camera-on",
+    onClick: $setup.unMuteVideo
+  }, "enable camera"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     id: "btn-leave",
     onClick: $setup.leave
   }, "leave call")])]);

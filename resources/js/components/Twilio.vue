@@ -37,10 +37,7 @@
 
 // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms-apis
 // https://www.twilio.com/docs/video/javascript-getting-started
-
-// storage to s3
-// recordings
-// share screen
+// https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices
 
 import { inject, onMounted, ref } from "vue"
 
@@ -83,6 +80,7 @@ const joinRoom = (roomName) => {
             videoChatWindow.appendChild(track.attach());
         })
 
+        // const room = await connect()
         return connect(accessToken.value, { name: roomName, tracks: localTracks,  preferredVideoCodecs: ['H264'] })
             .then(room => {
                 console.log(room)
