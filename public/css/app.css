@@ -473,20 +473,20 @@ Ensure the default browser behavior of the `hidden` attribute.
 .inline-flex {
   display: inline-flex;
 }
-.h-screen {
-  height: 100vh;
-}
 .h-full {
   height: 100%;
 }
 .h-64 {
   height: 16rem;
 }
-.w-full {
-  width: 100%;
+.h-screen {
+  height: 100vh;
 }
 .w-64 {
   width: 16rem;
+}
+.w-full {
+  width: 100%;
 }
 .items-center {
   align-items: center;

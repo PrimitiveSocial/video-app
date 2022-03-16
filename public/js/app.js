@@ -22836,67 +22836,114 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var options = {
       appId: "b07e18fc47864a07bf5918c2d1fc38ab",
       channel: "personal-meeting",
+      // how to create dynamic channel
       token: "006b07e18fc47864a07bf5918c2d1fc38abIAAzjGnQT0bqHkYbMzhV16AwVvyizwX/qzt62ZDy2MtN2P9+R5gAAAAAEADjTvSOMk8zYgEAAQAyTzNi",
       uid: 1
     };
 
-    var startCall = function startCall() {
+    var initAgoraClient = function initAgoraClient() {
       rtc.client = agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createClient({
         mode: "rtc",
         codec: "vp8"
       });
     };
 
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
-      var localParticipantPlayer;
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
+    var joinCall = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return rtc.client.join(options.appId, options.channel, options.token, options.uid);
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function joinCall() {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+
+    var startLocalParticipantVideoAndAudio = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+        var localParticipantPlayer;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
+
+              case 2:
+                rtc.localAudioTrack = _context2.sent;
+                _context2.next = 5;
+                return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
+
+              case 5:
+                rtc.localVideoTrack = _context2.sent;
+                _context2.next = 8;
+                return rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
+
+              case 8:
+                // Dynamically create a container in the form of a DIV element for playing the local video track.
+                localParticipantPlayer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the local user.
+
+                localParticipantPlayer.id = options.uid;
+                localParticipantPlayer.classList.value = 'w-64 h-64'; //must set width and height to display video
+
+                document.getElementById('local-participant').append(localParticipantPlayer); // Play the local video track.
+                // Pass the DIV container and the SDK dynamically creates a player in the container for playing the local video track.
+
+                rtc.localVideoTrack.play(localParticipantPlayer);
+
+              case 13:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+
+      return function startLocalParticipantVideoAndAudio() {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
-              _context.next = 2;
-              return startCall();
+              _context3.next = 2;
+              return initAgoraClient();
 
             case 2:
-              _context.next = 4;
-              return rtc.client.join(options.appId, options.channel, options.token, options.uid);
+              _context3.next = 4;
+              return joinCall();
 
             case 4:
-              _context.next = 6;
-              return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createMicrophoneAudioTrack();
+              _context3.next = 6;
+              return startLocalParticipantVideoAndAudio();
 
             case 6:
-              rtc.localAudioTrack = _context.sent;
-              _context.next = 9;
-              return agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createCameraVideoTrack();
-
-            case 9:
-              rtc.localVideoTrack = _context.sent;
-              _context.next = 12;
-              return rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
-
-            case 12:
-              // Dynamically create a container in the form of a DIV element for playing the local video track.
-              localParticipantPlayer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the local user.
-
-              localParticipantPlayer.id = options.uid;
-              localParticipantPlayer.classList.value = 'w-64 h-64'; //must set width and height to display video
-
-              document.getElementById('local-participant').append(localParticipantPlayer); // Play the local video track.
-              // Pass the DIV container and the SDK dynamically creates a player in the container for playing the local video track.
-
-              rtc.localVideoTrack.play(localParticipantPlayer);
-
-            case 17:
             case "end":
-              return _context.stop();
+              return _context3.stop();
           }
         }
-      }, _callee);
+      }, _callee3);
     })));
     var __returned__ = {
       rtc: rtc,
       options: options,
-      startCall: startCall,
+      initAgoraClient: initAgoraClient,
+      joinCall: joinCall,
+      startLocalParticipantVideoAndAudio: startLocalParticipantVideoAndAudio,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
       AgoraRTC: (agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default())
     };
@@ -23191,11 +23238,7 @@ var _hoisted_1 = {
 var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "flex justify-between p-8 space-x-8"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  id: "local-participant",
-  style: {
-    "width": "640px",
-    "height": "480px"
-  }
+  id: "local-participant"
 })], -1
 /* HOISTED */
 );
