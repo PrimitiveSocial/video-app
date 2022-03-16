@@ -11,6 +11,7 @@
 
         <button
             type="button"
+            @click="emit('agora-connected')"
             class="inline-flex items-center mx-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
             Join meeting using Agora
@@ -22,5 +23,5 @@
 import { defineEmits, inject } from "vue";
 
 const twilioAccessToken = inject('twilioAccessToken')
-const emit = defineEmits(['twilio-connected'])
+const emit = defineEmits(['twilio-connected', 'agora-connected'])
 </script>
