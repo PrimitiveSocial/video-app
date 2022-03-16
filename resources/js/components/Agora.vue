@@ -12,18 +12,17 @@
             </div>
         </div>
 
-        <div class="fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4">
+        <div class="fixed bottom-12 w-full flex items-center justify-center space-x-4 p-4">
             <!-- ui action -->
-            <button id="btn-camera-off" @click="muteVideo">hide camera</button>
-            <button id="btn-camera-on" @click="unMuteVideo">enable camera</button>
-            <button id="btn-leave" @click="leave">leave call</button>
+            <button id="btn-camera-off" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2" @click="muteVideo">hide camera</button>
+            <button id="btn-camera-on" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2" @click="unMuteVideo">enable camera</button>
+            <button id="btn-leave" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2" @click="leave">leave call</button>
         </div>
 
     </div>
 </template>
 
 <script setup>
-
 // https://www.agora.io/en/products/agora-app-builder/
 // https://docs.agora.io/en/Video/landing-page?platform=Web
 // https://docs.agora.io/en/Agora%20Platform/agora_platform?platform=All%20Platforms
@@ -33,8 +32,10 @@
 // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
 // https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html
 
-import { onMounted, ref } from "vue"
+import { onMounted, ref, defineEmits } from "vue"
 import AgoraRTC from "agora-rtc-sdk-ng"
+
+const emit = defineEmits(['disconnected'])
 
 const rtc = {
     client: AgoraRTC.createClient({ mode: "rtc", codec: "vp8" }),
@@ -136,6 +137,8 @@ const leave = async () => {
     rtc.localTracks.videoTrack.close()
 
     await rtc.client.leave()
+
+    emit('disconnected')
 }
 
 onMounted( async () => {

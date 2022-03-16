@@ -6,8 +6,8 @@
             v-if="!showTwilioVideoChat && !showAgoraVideoChat"
        ></homepage-actions>
 
-        <twilio v-if="showTwilioVideoChat"></twilio>
-        <agora v-if="showAgoraVideoChat"></agora>
+        <twilio v-if="showTwilioVideoChat" @disconnected="showTwilioVideoChat = false"></twilio>
+        <agora v-if="showAgoraVideoChat" @disconnected="showAgoraVideoChat = false"></agora>
     </div>
 </template>
 

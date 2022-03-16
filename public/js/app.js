@@ -22825,8 +22825,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  emits: ['disconnected'],
   setup: function setup(__props, _ref) {
-    var expose = _ref.expose;
+    var expose = _ref.expose,
+        emit = _ref.emit;
     expose(); // https://www.agora.io/en/products/agora-app-builder/
     // https://docs.agora.io/en/Video/landing-page?platform=Web
     // https://docs.agora.io/en/Agora%20Platform/agora_platform?platform=All%20Platforms
@@ -23045,6 +23047,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return rtc.client.leave();
 
               case 6:
+                emit('disconnected');
+
+              case 7:
               case "end":
                 return _context5.stop();
             }
@@ -23073,6 +23078,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee6);
     })));
     var __returned__ = {
+      emit: emit,
       rtc: rtc,
       options: options,
       events: events,
@@ -23206,8 +23212,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  emits: ['disconnected'],
   setup: function setup(__props, _ref) {
-    var expose = _ref.expose;
+    var expose = _ref.expose,
+        emit = _ref.emit;
     expose(); // https://www.twilio.com/docs/video/tutorials/basic-concepts
     // https://www.twilio.com/docs/video/tutorials/understanding-video-rooms
     // https://www.twilio.com/docs/video/tutorials/developing-high-quality-video-applications
@@ -23237,6 +23245,7 @@ __webpack_require__.r(__webpack_exports__);
 
     var leave = function leave(room) {
       room.disconnect();
+      emit('disconnected');
     };
 
     var handleRemoteParticipantDisabledCamera = function handleRemoteParticipantDisabledCamera(track) {
@@ -23339,6 +23348,7 @@ __webpack_require__.r(__webpack_exports__);
       createLocalTracks: createLocalTracks,
       accessToken: accessToken,
       events: events,
+      emit: emit,
       hideCamera: hideCamera,
       showCamera: showCamera,
       leave: leave,
@@ -23417,15 +23427,18 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }), 256
   /* UNKEYED_FRAGMENT */
   ))])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4"
+    "class": "fixed bottom-12 w-full flex items-center justify-center space-x-4 p-4"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     id: "btn-camera-off",
+    "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2",
     onClick: $setup.muteVideo
   }, "hide camera"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     id: "btn-camera-on",
+    "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2",
     onClick: $setup.unMuteVideo
   }, "enable camera"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     id: "btn-leave",
+    "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2",
     onClick: $setup.leave
   }, "leave call")])]);
 }
@@ -23458,9 +23471,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $setup.showAgoraVideoChat = true;
     })
   })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.showTwilioVideoChat ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Twilio"], {
-    key: 1
+    key: 1,
+    onDisconnected: _cache[2] || (_cache[2] = function ($event) {
+      return $setup.showTwilioVideoChat = false;
+    })
   })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.showAgoraVideoChat ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Agora"], {
-    key: 2
+    key: 2,
+    onDisconnected: _cache[3] || (_cache[3] = function ($event) {
+      return $setup.showAgoraVideoChat = false;
+    })
   })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]);
 }
 
@@ -23550,11 +23569,14 @@ var _hoisted_7 = {
 var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ui action "), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  id: "btn-camera-off"
+  id: "btn-camera-off",
+  "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2"
 }, "hide camera"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  id: "btn-camera-on"
+  id: "btn-camera-on",
+  "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2"
 }, "enable camera"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  id: "btn-leave"
+  id: "btn-leave",
+  "class": "bg-slate-700 text-slate-300 rounded-md px-4 py-2"
 }, "leave call")], -1
 /* HOISTED */
 );

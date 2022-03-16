@@ -22,9 +22,9 @@
 
         <div class="fixed bottom-0 w-full flex items-center justify-center space-x-4 p-4">
             <!-- ui action -->
-            <button id="btn-camera-off">hide camera</button>
-            <button id="btn-camera-on">enable camera</button>
-            <button id="btn-leave">leave call</button>
+            <button id="btn-camera-off" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2">hide camera</button>
+            <button id="btn-camera-on" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2">enable camera</button>
+            <button id="btn-leave" class="bg-slate-700 text-slate-300 rounded-md px-4 py-2">leave call</button>
         </div>
     </div>
 </template>
@@ -39,13 +39,14 @@
 // https://www.twilio.com/docs/video/javascript-getting-started
 // https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices
 
-import { inject, onMounted, ref } from "vue"
+import {defineEmits, inject, onMounted, ref} from "vue"
 
 const TwilioVideo = require('twilio-video')
 const { isSupported, connect, createLocalTracks } = TwilioVideo
 
 const accessToken = inject('twilioAccessToken')
 const events = ref([])
+const emit = defineEmits(['disconnected'])
 
 const hideCamera = (room) => {
     room.localParticipant.tracks.forEach(publication => {
@@ -61,6 +62,7 @@ const showCamera = (room) => {
 
 const leave = (room) => {
     room.disconnect();
+    emit('disconnected')
 }
 
 const handleRemoteParticipantDisabledCamera = (track) => {
