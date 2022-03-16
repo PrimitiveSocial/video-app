@@ -22921,15 +22921,15 @@ __webpack_require__.r(__webpack_exports__);
 
           document.getElementById('btn-leave').onclick = function () {
             return leave(room);
-          }; // room events
-          // Log your Client's LocalParticipant in the Room
+          }; // Log your Client's LocalParticipant in the Room
 
 
           events.value.push("Connected to the Room as LocalParticipant \"".concat(room.localParticipant.identity, "\"")); // Log any Participants already connected to the Room
 
           room.participants.forEach(function (participant) {
             events.value.push("Participant \"".concat(participant.identity, "\" is already connected to the Room"));
-          }); // Log new Participants as they connect to the Room
+          }); // room events
+          // Log new Participants as they connect to the Room
 
           room.on('participantConnected', function (participant) {
             events.value.push("Participant \"".concat(participant.identity, "\" has now connected to the Room"));

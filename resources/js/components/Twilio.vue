@@ -91,7 +91,6 @@ const joinRoom = (roomName) => {
                 document.getElementById('btn-camera-on').onclick = () => showCamera(room)
                 document.getElementById('btn-leave').onclick = () => leave(room)
 
-                // room events
                 // Log your Client's LocalParticipant in the Room
                 events.value.push(`Connected to the Room as LocalParticipant "${room.localParticipant.identity}"`);
 
@@ -100,6 +99,7 @@ const joinRoom = (roomName) => {
                     events.value.push(`Participant "${participant.identity}" is already connected to the Room`);
                 });
 
+                // room events
                 // Log new Participants as they connect to the Room
                 room.on('participantConnected', participant => {
                     events.value.push(`Participant "${participant.identity}" has now connected to the Room`);
