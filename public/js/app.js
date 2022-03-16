@@ -22827,7 +22827,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   setup: function setup(__props, _ref) {
     var expose = _ref.expose;
-    expose();
+    expose(); // https://www.agora.io/en/products/agora-app-builder/
+    // https://docs.agora.io/en/Video/landing-page?platform=Web
+    // https://docs.agora.io/en/Agora%20Platform/agora_platform?platform=All%20Platforms
+    // https://docs.agora.io/en/Video/start_call_web_ng?platform=Web
+    // https://docs.agora.io/en/Video/faq/token_error
+    // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
+
     var rtc = {
       localAudioTrack: null,
       localVideoTrack: null,
@@ -22836,10 +22842,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var options = {
       appId: "b07e18fc47864a07bf5918c2d1fc38ab",
       channel: "personal-meeting",
-      // how to create dynamic channel
       token: "006b07e18fc47864a07bf5918c2d1fc38abIAAzjGnQT0bqHkYbMzhV16AwVvyizwX/qzt62ZDy2MtN2P9+R5gAAAAAEADjTvSOMk8zYgEAAQAyTzNi",
-      uid: 1
+      uid: Math.floor(Math.random() * 100)
     };
+    var events = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
 
     var initAgoraClient = function initAgoraClient() {
       rtc.client = agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createClient({
@@ -22858,6 +22864,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return rtc.client.join(options.appId, options.channel, options.token, options.uid);
 
               case 2:
+                events.value.push("user ".concat(options.uid, " (you) has joined"));
+
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -22894,7 +22903,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 // Dynamically create a container in the form of a DIV element for playing the local video track.
                 localParticipantPlayer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the local user.
 
-                localParticipantPlayer.id = options.uid;
+                localParticipantPlayer.id = options.uid.toString();
                 localParticipantPlayer.classList.value = 'w-64 h-64'; //must set width and height to display video
 
                 document.getElementById('local-participant').append(localParticipantPlayer); // Play the local video track.
@@ -22915,36 +22924,152 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     }();
 
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+    var listenToRemoteParticipantsEvents = /*#__PURE__*/function () {
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                rtc.client.on("user-published", /*#__PURE__*/function () {
+                  var _ref5 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3(user, mediaType) {
+                    var remoteVideoTrack, remotePlayerContainer, remoteAudioTrack;
+                    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+                      while (1) {
+                        switch (_context3.prev = _context3.next) {
+                          case 0:
+                            _context3.next = 2;
+                            return rtc.client.subscribe(user, mediaType);
+
+                          case 2:
+                            events.value.push("user ".concat(user.uid, " has joined")); // If the remote user publishes a video track.
+
+                            if (mediaType === "video") {
+                              // Get the RemoteVideoTrack object in the AgoraRTCRemoteUser object.
+                              remoteVideoTrack = user.videoTrack; // Dynamically create a container in the form of a DIV element for playing the remote video track.
+
+                              remotePlayerContainer = document.createElement("div"); // Specify the ID of the DIV container. You can use the uid of the remote user.
+
+                              remotePlayerContainer.id = user.uid.toString();
+                              remotePlayerContainer.classList.value = 'w-64 h-64';
+                              document.getElementById('remote-participant').append(remotePlayerContainer); // Play the remote video track.
+                              // Pass the DIV container and the SDK dynamically creates a player in the container for playing the remote video track.
+
+                              remoteVideoTrack.play(remotePlayerContainer);
+                            } // If the remote user publishes an audio track.
+
+
+                            if (mediaType === "audio") {
+                              // Get the RemoteAudioTrack object in the AgoraRTCRemoteUser object.
+                              remoteAudioTrack = user.audioTrack; // Play the remote audio track. No need to pass any DOM element.
+
+                              remoteAudioTrack.play();
+                            } // Listen for the "user-unpublished" event
+
+
+                            rtc.client.on("user-unpublished", function (user) {
+                              // Get the dynamically created DIV container.
+                              var remotePlayerContainer = document.getElementById(user.uid); // Destroy the container.
+
+                              remotePlayerContainer.remove();
+                            });
+
+                          case 6:
+                          case "end":
+                            return _context3.stop();
+                        }
+                      }
+                    }, _callee3);
+                  }));
+
+                  return function (_x, _x2) {
+                    return _ref5.apply(this, arguments);
+                  };
+                }());
+
+              case 1:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4);
+      }));
+
+      return function listenToRemoteParticipantsEvents() {
+        return _ref4.apply(this, arguments);
+      };
+    }();
+
+    var startExistingRemoteParticipantsVideoAndAudio = /*#__PURE__*/function () {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                rtc.client.remoteUsers.forEach(function (user) {
+                  var remoteVideoTrack = user.videoTrack; // Specify the ID of the DIV container. You can use the uid of the remote user.
+
+                  var remotePlayerContainer = document.createElement("div");
+                  remotePlayerContainer.id = user.uid.toString();
+                  remotePlayerContainer.classList.value = 'w-64 h-64';
+                  document.getElementById('remote-participant').append(remotePlayerContainer); // Play the remote video track.
+                  // Pass the DIV container and the SDK dynamically creates a player in the container for playing the remote video track.
+
+                  remoteVideoTrack.play(remotePlayerContainer);
+                  var remoteAudioTrack = user.audioTrack;
+                  remoteAudioTrack.play();
+                });
+
+              case 1:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5);
+      }));
+
+      return function startExistingRemoteParticipantsVideoAndAudio() {
+        return _ref6.apply(this, arguments);
+      };
+    }();
+
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6() {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context3.next = 2;
+              _context6.next = 2;
               return initAgoraClient();
 
             case 2:
-              _context3.next = 4;
+              _context6.next = 4;
               return joinCall();
 
             case 4:
-              _context3.next = 6;
+              _context6.next = 6;
               return startLocalParticipantVideoAndAudio();
 
             case 6:
+              _context6.next = 8;
+              return startExistingRemoteParticipantsVideoAndAudio();
+
+            case 8:
             case "end":
-              return _context3.stop();
+              return _context6.stop();
           }
         }
-      }, _callee3);
+      }, _callee6);
     })));
     var __returned__ = {
       rtc: rtc,
       options: options,
+      events: events,
       initAgoraClient: initAgoraClient,
       joinCall: joinCall,
       startLocalParticipantVideoAndAudio: startLocalParticipantVideoAndAudio,
+      listenToRemoteParticipantsEvents: listenToRemoteParticipantsEvents,
+      startExistingRemoteParticipantsVideoAndAudio: startExistingRemoteParticipantsVideoAndAudio,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
+      ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref,
       AgoraRTC: (agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default())
     };
     Object.defineProperty(__returned__, '__isScriptSetup', {
@@ -23234,18 +23359,39 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "h-full bg-gradient-to-b from-slate-800 to-slate-600"
 };
-
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_2 = {
   "class": "flex justify-between p-8 space-x-8"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+};
+
+var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   id: "local-participant"
-})], -1
+}, null, -1
 /* HOISTED */
 );
 
-var _hoisted_3 = [_hoisted_2];
+var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  id: "remote-participant"
+}, null, -1
+/* HOISTED */
+);
+
+var _hoisted_5 = {
+  id: "meeting-events"
+};
+var _hoisted_6 = {
+  "class": "space-y-4"
+};
+var _hoisted_7 = {
+  "class": "text-white"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, _hoisted_3);
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" events log "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_6, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.events, function (event) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(event), 1
+    /* TEXT */
+    );
+  }), 256
+  /* UNKEYED_FRAGMENT */
+  ))])])])]);
 }
 
 /***/ }),
