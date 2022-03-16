@@ -32,6 +32,8 @@
 // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
 // https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html
 
+// https://appbuilder.agora.io/create
+
 import { onMounted, ref, defineEmits } from "vue"
 import AgoraRTC from "agora-rtc-sdk-ng"
 

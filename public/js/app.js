@@ -22836,6 +22836,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // https://docs.agora.io/en/Video/faq/token_error
     // https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo/basicVideoCall
     // https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html
+    // https://appbuilder.agora.io/create
 
     var rtc = {
       client: agora_rtc_sdk_ng__WEBPACK_IMPORTED_MODULE_2___default().createClient({
